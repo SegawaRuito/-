@@ -1,22 +1,46 @@
-import random
+/**
+ * ガチャを実行する関数
+ * @param {number} times - 引く回数
+ * @returns {string[]} - 当たったレアリティの配列
+ */
+function drawGacha(times = 1) {
+    const rarities = [
+        { name: 'SSR', weight: 3 },
+        { name: 'SR',  weight: 12 },
+        { name: 'R',   weight: 35 },
+        { name: 'N',   weight: 50 }
+    ];
 
-def draw_gacha(times=1):
-    # レアリティとその排出率（合計100になるように設定）
-    rarities = ['SSR', 'SR', 'R', 'N']
-    weights = [3, 12, 35, 50]  # SSRは3%
-    
-    results = random.choices(rarities, weights=weights, k=times)
-    return results
+    const results = [];
 
-# 10連ガチャを実行
-ten_pull = draw_gacha(10)
+    for (let i = 0; i < times; i++) {
+        // 0から99までの乱数を生成
+        const randomNum = Math.random() * 100;
+        let cumulativeWeight = 0;
 
-print("--- ガチャ結果 ---")
-for i, item in enumerate(ten_pull, 1):
-    print(f"{i}回目: [{item}]")
+        for (const item of rarities) {
+            cumulativeWeight += item.weight;
+            if (randomNum < cumulativeWeight) {
+                results.push(item.name);
+                break;
+            }
+        }
+    }
 
-# SSRが出たか確認
-if 'SSR' in ten_pull:
-    print("\n🎉 おめでとう！SSRを引きました！")
-else:
-    print("\n残念、SSRは出ませんでした。")
+    return results;
+}
+
+// --- 実行 ---
+const tenPull = drawGacha(10);
+
+console.log("--- ガチャ結果 ---");
+tenPull.forEach((item, index) => {
+    console.log(`${index + 1}回目: [${item}]`);
+});
+
+// SSRが含まれているかチェック
+if (tenPull.includes('SSR')) {
+    console.log("\n🎉 おめでとう！SSRを引きました！");
+} else {
+    console.log("\n残念、SSRは出ませんでした。");
+}
