@@ -1,9 +1,30 @@
-/**
- * ガチャを実行する関数
- * @param {number} times - 引く回数
- * @returns {string[]} - 当たったレアリティの配列
- */
-function drawGacha(times = 1) {
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>シンプルガチャ</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #f0f0f0; }
+        .container { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .result-display { margin-top: 20px; min-height: 100px; padding: 10px; border: 1px dashed #ccc; background: #fafafa; }
+        button { font-size: 1.2rem; padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        .SSR { color: #d4af37; font-weight: bold; text-shadow: 0 0 5px #fff; }
+        .SR { color: #9400d3; font-weight: bold; }
+        .R { color: #0000ff; }
+        .N { color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>運試しガチャ</h1>
+    <button onclick="playGacha()">10連ガチャを回す！</button>
+    <div id="result" class="result-display">ここに結果が出ます</div>
+</div>
+
+<script>
+function playGacha() {
     const rarities = [
         { name: 'SSR', weight: 3 },
         { name: 'SR',  weight: 12 },
@@ -12,12 +33,9 @@ function drawGacha(times = 1) {
     ];
 
     const results = [];
-
-    for (let i = 0; i < times; i++) {
-        // 0から99までの乱数を生成
+    for (let i = 0; i < 10; i++) {
         const randomNum = Math.random() * 100;
         let cumulativeWeight = 0;
-
         for (const item of rarities) {
             cumulativeWeight += item.weight;
             if (randomNum < cumulativeWeight) {
@@ -27,20 +45,23 @@ function drawGacha(times = 1) {
         }
     }
 
-    return results;
+    // 画面に表示する処理
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = ""; // 前の結果をクリア
+
+    results.forEach((res, index) => {
+        const span = document.createElement('span');
+        span.className = res; // レアリティに応じた色分け用クラス
+        span.textContent = `[${res}] `;
+        resultDiv.appendChild(span);
+        if ((index + 1) % 5 === 0) resultDiv.appendChild(document.createElement('br'));
+    });
+
+    if (results.includes('SSR')) {
+        resultDiv.innerHTML += "<br><strong>🌟 おめでとう！SSR降臨！ 🌟</strong>";
+    }
 }
+</script>
 
-// --- 実行 ---
-const tenPull = drawGacha(10);
-
-console.log("--- ガチャ結果 ---");
-tenPull.forEach((item, index) => {
-    console.log(`${index + 1}回目: [${item}]`);
-});
-
-// SSRが含まれているかチェック
-if (tenPull.includes('SSR')) {
-    console.log("\n🎉 おめでとう！SSRを引きました！");
-} else {
-    console.log("\n残念、SSRは出ませんでした。");
-}
+</body>
+</html>
