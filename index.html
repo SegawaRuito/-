@@ -2,66 +2,184 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>シンプルガチャ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>豪華！スマホ風ガチャ</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #f0f0f0; }
-        .container { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .result-display { margin-top: 20px; min-height: 100px; padding: 10px; border: 1px dashed #ccc; background: #fafafa; }
-        button { font-size: 1.2rem; padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
-        button:hover { background: #0056b3; }
-        .SSR { color: #d4af37; font-weight: bold; text-shadow: 0 0 5px #fff; }
-        .SR { color: #9400d3; font-weight: bold; }
-        .R { color: #0000ff; }
-        .N { color: #666; }
+        :root {
+            --ssr-color: #ffcc00;
+            --sr-color: #a335ee;
+            --r-color: #0070dd;
+            --n-color: #9d9d9d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a2e;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin-top: 20px; text-shadow: 0 0 10px #4ecca3; }
+
+        /* ガチャコンテナ */
+        .gacha-machine {
+            background: linear-gradient(180deg, #16213e 0%, #0f3460 100%);
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 2px solid #4ecca3;
+        }
+
+        /* 結果表示エリア */
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            min-height: 150px;
+        }
+
+        .capsule {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.3);
+        }
+
+        /* レアリティ別スタイル */
+        .SSR { 
+            background: radial-gradient(circle, #fff700, #ff8c00); 
+            color: #000; 
+            box-shadow: 0 0 15px var(--ssr-color);
+            animation: bounceIn 0.5s both, glow 1.5s infinite alternate;
+        }
+        .SR { background: radial-gradient(circle, #e0aaff, #7b2cbf); color: white; }
+        .R  { background: radial-gradient(circle, #caf0f8, #0077b6); color: white; }
+        .N  { background: radial-gradient(circle, #e5e5e5, #4a4a4a); color: white; }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px var(--ssr-color); }
+            to { box-shadow: 0 0 20px #fff, 0 0 30px var(--ssr-color); }
+        }
+
+        /* ボタン */
+        .controls { display: flex; gap: 10px; justify-content: center; }
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn-single { background: #4ecca3; color: #1a1a2e; }
+        .btn-multi { background: #e94560; color: white; }
+        button:active { transform: scale(0.95); }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        /* ログ */
+        .status { margin-top: 15px; font-size: 0.9rem; color: #4ecca3; height: 1.2em; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>運試しガチャ</h1>
-    <button onclick="playGacha()">10連ガチャを回す！</button>
-    <div id="result" class="result-display">ここに結果が出ます</div>
-</div>
+    <h1>SUMMON GACHA</h1>
 
-<script>
-function playGacha() {
-    const rarities = [
-        { name: 'SSR', weight: 3 },
-        { name: 'SR',  weight: 12 },
-        { name: 'R',   weight: 35 },
-        { name: 'N',   weight: 50 }
-    ];
+    <div class="gacha-machine">
+        <div class="status" id="statusText">運を試してみよう！</div>
+        
+        <div class="result-grid" id="gachaDisplay">
+            </div>
 
-    const results = [];
-    for (let i = 0; i < 10; i++) {
-        const randomNum = Math.random() * 100;
-        let cumulativeWeight = 0;
-        for (const item of rarities) {
-            cumulativeWeight += item.weight;
-            if (randomNum < cumulativeWeight) {
-                results.push(item.name);
-                break;
+        <div class="controls">
+            <button class="btn-single" onclick="playGacha(1)">1回召喚</button>
+            <button class="btn-multi" onclick="playGacha(10)">10回召喚</button>
+        </div>
+        <p style="font-size: 0.7rem; margin-top: 15px; color: #888;">
+            SSR: 3% / SR: 12% / R: 85% <br>
+            ※10回目はSR以上確定！
+        </p>
+    </div>
+
+    <script>
+        const rarities = [
+            { name: 'SSR', weight: 3 },
+            { name: 'SR',  weight: 12 },
+            { name: 'R',   weight: 85 }
+        ];
+
+        function draw(isGuaranteedSR = false) {
+            let currentRarities = [...rarities];
+            
+            // SR以上確定枠の処理
+            if (isGuaranteedSR) {
+                // Rを除外してSSRとSRだけで再計算
+                currentRarities = rarities.filter(r => r.name !== 'R');
+            }
+
+            const totalWeight = currentRarities.reduce((sum, r) => sum + r.weight, 0);
+            let randomNum = Math.random() * totalWeight;
+            
+            for (const item of currentRarities) {
+                if (randomNum < item.weight) {
+                    return item.name;
+                }
+                randomNum -= item.weight;
             }
         }
-    }
 
-    // 画面に表示する処理
-    const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = ""; // 前の結果をクリア
+        function playGacha(times) {
+            const display = document.getElementById('gachaDisplay');
+            const status = document.getElementById('statusText');
+            const buttons = document.querySelectorAll('button');
 
-    results.forEach((res, index) => {
-        const span = document.createElement('span');
-        span.className = res; // レアリティに応じた色分け用クラス
-        span.textContent = `[${res}] `;
-        resultDiv.appendChild(span);
-        if ((index + 1) % 5 === 0) resultDiv.appendChild(document.createElement('br'));
-    });
+            // 初期化
+            display.innerHTML = "";
+            status.textContent = "召喚中...";
+            buttons.forEach(b => b.disabled = true);
 
-    if (results.includes('SSR')) {
-        resultDiv.innerHTML += "<br><strong>🌟 おめでとう！SSR降臨！ 🌟</strong>";
-    }
-}
-</script>
+            const results = [];
+            for (let i = 0; i < times; i++) {
+                // 10連の最後かつ10回引きの時だけSR確定
+                const isGuaranteed = (times === 10 && i === 9);
+                results.push(draw(isGuaranteed));
+            }
 
+            // 演出として少しずつ表示させる
+            results.forEach((res, i) => {
+                setTimeout(() => {
+                    const cap = document.createElement('div');
+                    cap.className = `capsule ${res}`;
+                    cap.textContent = res;
+                    display.appendChild(cap);
+
+                    if (i === results.length - 1) {
+                        status.textContent = results.includes('SSR') ? "🌟 最高レア獲得！ 🌟" : "召喚完了";
+                        buttons.forEach(b => b.disabled = false);
+                    }
+                }, i * 100); // 0.1秒ずつずらして表示
+            });
+        }
+    </script>
 </body>
 </html>
