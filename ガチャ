@@ -1,0 +1,22 @@
+import random
+
+def draw_gacha(times=1):
+    # レアリティとその排出率（合計100になるように設定）
+    rarities = ['SSR', 'SR', 'R', 'N']
+    weights = [3, 12, 35, 50]  # SSRは3%
+    
+    results = random.choices(rarities, weights=weights, k=times)
+    return results
+
+# 10連ガチャを実行
+ten_pull = draw_gacha(10)
+
+print("--- ガチャ結果 ---")
+for i, item in enumerate(ten_pull, 1):
+    print(f"{i}回目: [{item}]")
+
+# SSRが出たか確認
+if 'SSR' in ten_pull:
+    print("\n🎉 おめでとう！SSRを引きました！")
+else:
+    print("\n残念、SSRは出ませんでした。")
